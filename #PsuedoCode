@@ -1,0 +1,55 @@
+#PsuedoCode
+
+MmovementForward = pinOut
+MmovementBack = pinOut
+MaxleUp = pinOut
+MaxleDown = pinOut
+McupClose = pinOut
+McupOpen = pinOut
+ledState = Boolean #True -> On
+Direction = Boolean #True -> Forward
+inpSound = pinIn
+inpState = pinIn
+inpCupState = pinIn	 #True if cup is at the bottom
+inpAxleState = pinIn #True if axle is at the top
+currentSensor = Integer (0 -> first sensor (egg) 1 -> Second sensor (dropoff))
+
+int detect_sensor(int curSensor){ 	#currentSensor, Direction = detect_sensor(currentSensor)
+	if cupState == 0{
+		return 1 , True
+	}
+	else if cupState == 1{
+		return 2 , False
+	}
+	else{
+		return 1 , True
+	}
+}
+
+void move(dir){
+	if dir == True{
+		MmovmementForward = HIGH
+		MmovementBack = LOW
+	}
+	else{
+		MmovementForward = LOW
+		MmovementBack = HIGH
+	}
+}
+
+void drop_down(){
+	#todo 
+}
+
+
+void loop(){
+	if inpState == True{	#Waiting for button to be pressed
+		if inpSound < VALUE{# DETERMINE THIS
+			move(Direction)
+		} 
+		else{
+			detect_sensor(currentSensor)
+			drop_down()
+		}
+	}
+}
