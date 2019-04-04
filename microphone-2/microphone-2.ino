@@ -52,7 +52,10 @@ void setup()
 
 void loop()
 {
-  /*SAMPLING*/
+
+  //CONECTIONS:
+  //power mic amp module with 3.3v and connect to A0
+  // SAMPLING the sound. it takes samples/frequency = 64/8000 = 8ms
   microseconds = micros();
   for(int i=0; i<samples; i++)
   {
@@ -63,26 +66,66 @@ void loop()
       }
       microseconds += sampling_period_us;
   }
-  /* Print the results of the sampling according to time */
-  Serial.println("Data:");
-  PrintVector(vReal, samples, SCL_TIME);
-  FFT.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);  /* Weigh data */
-  Serial.println("Weighed data:");
-  PrintVector(vReal, samples, SCL_TIME);
-  FFT.Compute(vReal, vImag, samples, FFT_FORWARD); /* Compute FFT */
-  Serial.println("Computed Real values:");
-  PrintVector(vReal, samples, SCL_INDEX);
-  Serial.println("Computed Imaginary values:");
-  PrintVector(vImag, samples, SCL_INDEX);
-  FFT.ComplexToMagnitude(vReal, vImag, samples); /* Compute magnitudes */
-  Serial.println("Computed magnitudes:");
-  PrintVector(vReal, (samples >> 1), SCL_FREQUENCY);
-  double x = FFT.MajorPeak(vReal, samples, samplingFrequency);
-  Serial.println(x, 6); //Print out what frequency is the most dominant.
-  //while(1); /* Run Once */
-  delay(2000); /* Repeat after delay */
+
+  // Calcs about the audio signal
+  FFT.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);  // Weigh data
+  FFT.Compute(vReal, vImag, samples, FFT_FORWARD); // Compute FFT
+  FFT.ComplexToMagnitude(vReal, vImag, samples); // Compute magnitudes
+
+  //check if an audio trigger has been detected
+  #define TRIG_LEVEL_1.9KHZ 400
+  #define TRIG_LEVEL_5.2KHZ 800
+    if(vReal[15] > TRIG_LEVEL_1.9KHZ) {
+    //the 1.9KHz tone has been detected
+    }
+   
+    if(vReal[42] > TRIG_LEVEL_5.2KHZ) {
+      //the 5.2KHz tone has been detected
+    }
+  
+    /* READINGS FROM HEADPHONE NEXT TO MIC AT COLLEGE. stored in array caled vReal[]
+    1900Hz Signal: vReal[14] > 100 && vReal[15] > 400 && vReal[16] > 200
+    [14]1750.000000Hz 144.6338
+    [15]1875.000000Hz 482.4529
+    [16]2000.000000Hz 292.5368
+    
+    5200Hz Signal
+    [21]2625.000000Hz 162.9220
+    [22]2750.000000Hz 915.0484
+    [23]2875.000000Hz 791.5623
+    
+    [41]5125.000000Hz 791.5623
+    [42]5250.000000Hz 915.0484
+    [43]5375.000000Hz 162.9220
+    */
+
+  //uncomment to print magnitudes of frequency bands to serial monitor
+  //Serial.println("Computed magnitudes:");
+  //PrintVector(vReal, (samples /*>> 1*/), SCL_FREQUENCY);
+  //delay(2000); /* Repeat after delay */
+  
+  
+//  /* Print the results of the sampling according to time */
+//  Serial.println("Data:");
+//  PrintVector(vReal, samples, SCL_TIME);
+//  FFT.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);  /* Weigh data */
+//  Serial.println("Weighed data:");
+//  PrintVector(vReal, samples, SCL_TIME);
+//  FFT.Compute(vReal, vImag, samples, FFT_FORWARD); /* Compute FFT */
+//  Serial.println("Computed Real values:");
+//  PrintVector(vReal, samples, SCL_INDEX);
+//  Serial.println("Computed Imaginary values:");
+//  PrintVector(vImag, samples, SCL_INDEX);
+//  FFT.ComplexToMagnitude(vReal, vImag, samples); /* Compute magnitudes */
+//  Serial.println("Computed magnitudes:");
+//  PrintVector(vReal, (samples >> 1), SCL_FREQUENCY);
+//  double x = FFT.MajorPeak(vReal, samples, samplingFrequency);
+//  Serial.println(x, 6); //Print out what frequency is the most dominant.
+//  //while(1); /* Run Once */
+//  delay(2000); /* Repeat after delay */
 }
 
+//prints formatted array
 void PrintVector(double *vData, uint16_t bufferSize, uint8_t scaleType)
 {
   for (uint16_t i = 0; i < bufferSize; i++)

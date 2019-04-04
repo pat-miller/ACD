@@ -1,0 +1,3 @@
+[submodule "required-libs/arduinoFFT"]
+	path = required-libs/arduinoFFT
+	url = git@github.com:kosme/arduinoFFT.git
