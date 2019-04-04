@@ -1,5 +1,8 @@
 #PsuedoCode
 
+Note for collection mechanism:
+servo: 0degrees = closed, 180d = open
+
 MmovementForward = pinOut
 MmovementBack = pinOut
 MaxleUp = pinOut

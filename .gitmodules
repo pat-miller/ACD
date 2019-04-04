@@ -1,0 +1,6 @@
+[submodule "required-libs/arduinoFFT"]
+	path = required-libs/arduinoFFT
+	url = git@github.com:kosme/arduinoFFT.git
+[submodule "required-libs/VarSpeedServo"]
+	path = required-libs/VarSpeedServo
+	url = git@github.com:netlabtoolkit/VarSpeedServo.git
