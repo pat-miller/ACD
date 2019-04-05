@@ -73,13 +73,13 @@ void loop()
   FFT.ComplexToMagnitude(vReal, vImag, samples); // Compute magnitudes
 
   //check if an audio trigger has been detected
-  #define TRIG_LEVEL_1.9KHZ 400
-  #define TRIG_LEVEL_5.2KHZ 800
-    if(vReal[15] > TRIG_LEVEL_1.9KHZ) {
+  #define TRIG_LEVEL_1_9KHZ 400
+  #define TRIG_LEVEL_5_2KHZ 800
+    if(vReal[15] > TRIG_LEVEL_1_9KHZ) {
     //the 1.9KHz tone has been detected
     }
    
-    if(vReal[42] > TRIG_LEVEL_5.2KHZ) {
+    if(vReal[42] > TRIG_LEVEL_5_2KHZ) {
       //the 5.2KHz tone has been detected
     }
   
@@ -97,12 +97,50 @@ void loop()
     [41]5125.000000Hz 791.5623
     [42]5250.000000Hz 915.0484
     [43]5375.000000Hz 162.9220
+
+    READINGS FROM CONTROL MODULE:
+    LOW FREQ:
+    M1:
+    [14]1750.000000Hz 727.3148
+    [15]1875.000000Hz 1648.7812
+    [16]2000.000000Hz 755.1448
+
+    M2:
+    1750.000000Hz 307.0199
+    1875.000000Hz 470.8489
+    2000.000000Hz 156.1473
+
+    M3:
+    2250.000000Hz 167.6262
+    2375.000000Hz 751.1906
+    2500.000000Hz 612.3876
+
+
+
+    HIGH FREQ:
+    M1:
+    [44]5500.000000Hz 137.1266
+    [45]5625.000000Hz 454.9480
+    [46]5750.000000Hz 275.0983
+    M2:
+    5375.000000Hz 250.5158
+    5500.000000Hz 360.4578
+    5625.000000Hz 94.2462
+    M3:
+    5375.000000Hz 101.4472
+    5500.000000Hz 800.0160
+    5625.000000Hz 1000.3213
+    5750.000000Hz 218.7915
+
+
+
+    
     */
 
   //uncomment to print magnitudes of frequency bands to serial monitor
-  //Serial.println("Computed magnitudes:");
-  //PrintVector(vReal, (samples /*>> 1*/), SCL_FREQUENCY);
-  //delay(2000); /* Repeat after delay */
+  Serial.println("Computed magnitudes:");
+  PrintVector(vReal, (samples /*>> 1*/), SCL_FREQUENCY);
+  delay(2000); /* Repeat after delay */
   
   
 //  /* Print the results of the sampling according to time */

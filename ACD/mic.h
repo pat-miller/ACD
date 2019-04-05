@@ -12,7 +12,7 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
 #define SCL_FREQUENCY 0x02
 #define SCL_PLOT 0x03
 
-    const int inputPin = A0;
+    const int inputPin = MIC_PIN;
     
     const uint16_t samples = 64; //This value MUST ALWAYS be a power of 2
     const double samplingFrequency = 8000; //Hz, must be less than 10000 due to ADC
@@ -30,6 +30,7 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
     }
 
     int checkForSound() {
+        Serial.println("check for sound");
         //CONECTIONS:
         //power mic amp module with 3.3v and connect to A0
         // SAMPLING the sound. it takes samples/frequency = 64/8000 = 8ms
@@ -49,15 +50,25 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
         FFT.Compute(vReal, vImag, samples, FFT_FORWARD); // Compute FFT
         FFT.ComplexToMagnitude(vReal, vImag, samples); // Compute magnitudes
 
+        
         //check if an audio trigger has been detected
         #define TRIG_LEVEL_1_9KHZ 400
-        #define TRIG_LEVEL_5_2KHZ 800
-        if (vReal[15] > TRIG_LEVEL_1_9KHZ) {
+        #define TRIG_LEVEL_5_2KHZ 175
+        double lowFreqMax = 0;
+        double highFreqMax = 0;
+        for (int i = 15; i <= 18; i++) {
+            if (vReal[i] > lowFreqMax) lowFreqMax = vReal[i];
+        }
+        for (int i = 44; i <= 47; i++) {
+            if (vReal[i] > highFreqMax) highFreqMax = vReal[i];
+        }
+
+        if (lowFreqMax > TRIG_LEVEL_1_9KHZ) {
             //the 1.9KHz tone has been detected
             return 1;
         }
 
-        else if (vReal[42] > TRIG_LEVEL_5_2KHZ) {
+        else if (highFreqMax > TRIG_LEVEL_5_2KHZ) {
             //the 5.2KHz tone has been detected
             return 2;
         }
