@@ -20,6 +20,11 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
     double vReal[samples];
     double vImag[samples];
 
+    double lowFreqMax = 0;
+    double highFreqMax = 0;
+
+    double magnitudeMean = 0;
+
     unsigned long microseconds;
     unsigned int sampling_period_us;
 
@@ -30,7 +35,10 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
     }
 
     int checkForSound() {
-        Serial.println("check for sound");
+        
+        lowFreqMax = 0;
+        highFreqMax = 0;
+
         //CONECTIONS:
         //power mic amp module with 3.3v and connect to A0
         // SAMPLING the sound. it takes samples/frequency = 64/8000 = 8ms
@@ -52,10 +60,10 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
 
         
         //check if an audio trigger has been detected
-        #define TRIG_LEVEL_1_9KHZ 400
-        #define TRIG_LEVEL_5_2KHZ 175
-        double lowFreqMax = 0;
-        double highFreqMax = 0;
+        #define TRIG_LEVEL_1_9KHZ 600
+        #define TRIG_LEVEL_5_2KHZ 200
+        #define BACKGROUND_NOISE_LEVEL 50
+
         for (int i = 15; i <= 18; i++) {
             if (vReal[i] > lowFreqMax) lowFreqMax = vReal[i];
         }
@@ -63,6 +71,19 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
             if (vReal[i] > highFreqMax) highFreqMax = vReal[i];
         }
 
+        /*magnitudeMean = 0;
+        for (int i = 5; i < samples - 5; i++) {
+            magnitudeMean += vReal[i];
+        }
+        magnitudeMean /= samples;
+
+        //Serial.println(magnitudeMean);
+
+        if (magnitudeMean > BACKGROUND_NOISE_LEVEL) {
+            return -1;
+        }*/
+
+            Serial.println(lowFreqMax);
         if (lowFreqMax > TRIG_LEVEL_1_9KHZ) {
             //the 1.9KHz tone has been detected
             return 1;
