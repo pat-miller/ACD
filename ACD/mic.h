@@ -60,7 +60,7 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
 
         
         //check if an audio trigger has been detected
-        #define TRIG_LEVEL_1_9KHZ 600
+        #define TRIG_LEVEL_1_9KHZ 500 //600
         #define TRIG_LEVEL_5_2KHZ 200
         #define BACKGROUND_NOISE_LEVEL 50
 

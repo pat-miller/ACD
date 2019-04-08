@@ -23,6 +23,19 @@ void motor::drive(int direction) {
     }
 }
 
+void motor::drive(int direction, int speed) {
+    if (direction == FORWARD) {
+        analogWrite(motorPinA, speed);
+        analogWrite(motorPinB, -speed);
+    }
+    else if (direction == BACKWARD) {
+        analogWrite(motorPinA, -speed);
+        analogWrite(motorPinB, speed);
+    }
+    else {
+        stop();
+    }
+}
 void motor::stop() {
     digitalWrite(motorPinA, LOW);
     digitalWrite(motorPinB, LOW);

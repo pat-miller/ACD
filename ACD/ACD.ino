@@ -1,4 +1,10 @@
 /*
+TODO:
+replace with commercial hbridge, and add pwm speed conrol to make horizontal motor drive slowly
+get replacement servo
+add smarter sound detection code
+
+
 pin connections:
 horizontal motor: D5 and D6
 vertical motor: A4 and A5
@@ -16,6 +22,7 @@ IR LED: D13
 #define MIC_PIN A0
 #define BOTTOM_BUTTON_PIN 7
 #define TOP_BUTTON_PIN 8
+#define HORIZONTAL_SPEED 190
 
 #include "motor.h"
 #include "mic.h"
@@ -102,7 +109,9 @@ void loop() {
     // Turn on led
     digitalWrite(IR_LED_PIN, HIGH);
     //move forward until we hear a sound,stop, turn off leds
-
+    
+    horizontalMotor.drive(state, HORIZONTAL_SPEED);
+    delay(5000);
     horizontalMove(state);
 
     digitalWrite(IR_LED_PIN, LOW);
@@ -159,16 +168,27 @@ void horizontalMove(int direction) {
         //if (sound == -1) {
         //    horizontalMotor.stop();
         //}
-        if (sound == 1) {
-            //previousTrigger++;
-            //Serial.println(previousTrigger);
-            //if (previousTrigger > 2) {
-                needToMove = 0;
-            //}
+        if (sound == 1 || sound == 2) {
+            previousTrigger++;
+            Serial.println(previousTrigger);
+            if (previousTrigger > 3) {
+                Serial.println("THINK WE'VE BEEN TRIGGERED");
+                delay(300);
+                int soundCounter = 0;
+                for (int i = 0; i < 5; i++) {
+                    sound = checkForSound();
+                    if (sound == 1 || sound == 2) {
+                        soundCounter++;
+                    }
+                }
+                if (soundCounter > 3) {
+                    needToMove = 0;
+                }
+            }
         }
         else {
-            //previousTrigger = 0;
-            horizontalMotor.drive(direction);
+            previousTrigger = 0;
+            horizontalMotor.drive(direction,HORIZONTAL_SPEED);
         }
     }
     horizontalMotor.stop();

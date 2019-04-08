@@ -46,7 +46,7 @@ double vImag[samples];
 void setup()
 {
   sampling_period_us = round(1000000*(1.0/samplingFrequency));
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("Ready");
 }
 

@@ -23,6 +23,7 @@ public:
     //methods to control movement
     void stop();
     void drive(int direction);
+    void drive(int direction, int speed);
 
     //Constructor. L1, L2, R1 and R2 are the pins connected to the hbridge
     motor(int pinA, int pinB);
