@@ -1,6 +1,10 @@
 /*
-ACD code
-the main code for the ACD coordination function
+TODO:
+replace with commercial hbridge, and add pwm speed conrol to make horizontal motor drive slowly
+get replacement servo
+add smarter sound detection code
+
+
 pin connections:
 horizontal motor: D5 and D6
 vertical motor: A4 and A5
@@ -9,7 +13,7 @@ mic: A0
 IR LED: D13
 */
 
-#define IR_LED_PIN 2
+#define IR_LED_PIN 4
 #define COLLECTION_SERVO_PIN 9
 #define H_MOTOR_A 5
 #define H_MOTOR_B 6
@@ -18,20 +22,19 @@ IR LED: D13
 #define MIC_PIN A0
 #define BOTTOM_BUTTON_PIN 7
 #define TOP_BUTTON_PIN 8
-#define HORIZONTAL_SPEED 170
+#define HORIZONTAL_SPEED 190
 
 #include "motor.h"
 #include "mic.h"
+//#include <VarSpeedServo.h>
 #include <Servo.h>
 
-// create servo object for cargo collection arms
+//VarSpeedServo myservo;    // create servo object to control a servo 
 Servo collectionServo;
 
-// connect motors for horizontal and vertical positioning systems
 motor horizontalMotor(H_MOTOR_A, H_MOTOR_B);
 motor verticaMotor(V_MOTOR_A, V_MOTOR_B);
 
-// the horizontal direction the platform is moving in
 int state = FORWARD;
 int gotEgg = 0;
 int firstMovement = 1;
@@ -42,17 +45,25 @@ void setup() {
 
     pinMode(BOTTOM_BUTTON_PIN, INPUT);
     pinMode(TOP_BUTTON_PIN, INPUT);
-    pinMode(IR_LED_PIN, OUTPUT);
+    pinMode(IR_LED_PIN, INPUT);
 
     Serial.println("Start up");
+    /*
+    for (int i = 0; i < 3; i++) {
+        digitalWrite(IR_LED_PIN, HIGH);
+        delay(500);
+        digitalWrite(IR_LED_PIN, LOW);
+        delay(500);
+    }
+    */
 
     setupMic();
-    //setup the servo
     collectionServo.attach(COLLECTION_SERVO_PIN);  // attaches the servo on pin COLLECTION_SERVO_PIN
     closeCollection();
 
     resetVerticalSystem();
     digitalWrite(IR_LED_PIN, HIGH);
+    Serial.println("LEDs on");
     }
 
 // the loop function runs over and over again until power down or reset
@@ -63,16 +74,22 @@ void loop() {
         horizontalMove(FORWARD);
         digitalWrite(IR_LED_PIN, LOW);
         firstMovement = 0;
-    }
 
+    }
+    Serial.print("gotEgg = ");
+    Serial.println(gotEgg);
+    Serial.print("state: ");
+    Serial.println(state);
+        // open collection 
     if (gotEgg == 0) {
         openCollection();
     }
-
+    // lower until we hit the bottom, stop
     while (checkBottom() == 0) {
         verticaMotor.drive(FORWARD);
     }
     verticaMotor.stop();
+    //close collection to collect egg
     if (gotEgg == 0) {
         closeCollection();
         gotEgg = 1;
@@ -89,19 +106,17 @@ void loop() {
         closeCollection();
     }
 
-    // move for 5 seconds to ensure we get passed the control module
+    // Turn on led
+    digitalWrite(IR_LED_PIN, HIGH);
+    //move forward until we hear a sound,stop, turn off leds
+    
     horizontalMotor.drive(state, HORIZONTAL_SPEED);
     delay(5000);
-    // turn on the IR leds
-    digitalWrite(IR_LED_PIN, HIGH);
-
-    // move to next control module
     horizontalMove(state);
 
     digitalWrite(IR_LED_PIN, LOW);
-
-    // change state
     state = (state == FORWARD ? BACKWARD : FORWARD);
+
 
 }
 
@@ -131,12 +146,12 @@ void resetVerticalSystem() {
     while (checkTop() == 0) {
         verticaMotor.drive(BACKWARD);
     }
-    //back off (lower) till button is released.
     while (checkTop() == 1) {
         verticaMotor.drive(FORWARD);
     }
-    delay(100); // continue a little more
+    delay(100);
     verticaMotor.stop();
+    Serial.println("vertical system is all reset and ready");
     delay(500);
 }
 
@@ -155,14 +170,12 @@ void horizontalMove(int direction) {
         //}
         if (sound == 1 || sound == 2) {
             previousTrigger++;
+            Serial.println(previousTrigger);
             if (previousTrigger > 3) {
                 Serial.println("THINK WE'VE BEEN TRIGGERED");
-                //horizontalMotor.stop();
-                // wait a little to be sure
                 delay(300);
-                // take 6 more samples, at least 4 need to be above the threshold 
                 int soundCounter = 0;
-                for (int i = 0; i < 6; i++) {
+                for (int i = 0; i < 5; i++) {
                     sound = checkForSound();
                     if (sound == 1 || sound == 2) {
                         soundCounter++;
@@ -175,7 +188,7 @@ void horizontalMove(int direction) {
         }
         else {
             previousTrigger = 0;
-            horizontalMotor.drive(direction, HORIZONTAL_SPEED);
+            horizontalMotor.drive(direction,HORIZONTAL_SPEED);
         }
     }
     horizontalMotor.stop();
