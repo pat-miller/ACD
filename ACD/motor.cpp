@@ -1,6 +1,7 @@
+// Class to provide control of motors via an H-bridge
 #include "motor.h"
-#include "config.h"
 
+// constructor. set up pins as outputs
 motor::motor(int pinA, int pinB) {
     motorPinA = pinA;
     motorPinB = pinB;
@@ -9,6 +10,7 @@ motor::motor(int pinA, int pinB) {
     stop();
 }
 
+// set the motor to full speed in specified direction
 void motor::drive(int direction) {
     if (direction == FORWARD) {
         digitalWrite(motorPinA, HIGH);
@@ -23,6 +25,7 @@ void motor::drive(int direction) {
     }
 }
 
+// set motor to drive at a given speed and direction using pwm
 void motor::drive(int direction, int speed) {
     if (direction == FORWARD) {
         analogWrite(motorPinA, speed);
@@ -36,6 +39,7 @@ void motor::drive(int direction, int speed) {
         stop();
     }
 }
+
 void motor::stop() {
     digitalWrite(motorPinA, LOW);
     digitalWrite(motorPinB, LOW);
