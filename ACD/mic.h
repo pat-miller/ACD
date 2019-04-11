@@ -1,11 +1,11 @@
 
-
 // Adapted from code Enrique Condés and Ragnar Ranøyen Homb
 // Licenced under GNU General Public License
 
 #include "arduinoFFT.h"
 
-arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
+// FFT object
+arduinoFFT FFT = arduinoFFT(); 
 
 #define SCL_INDEX 0x00
 #define SCL_TIME 0x01
@@ -15,7 +15,7 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
     const int inputPin = MIC_PIN;
     
     const uint16_t samples = 64; //This value MUST ALWAYS be a power of 2
-    const double samplingFrequency = 8000; //Hz, must be less than 10000 due to ADC
+    const double samplingFrequency = 8000; //Hz, must be less than 10000 due to ADC limit
 
     double vReal[samples];
     double vImag[samples];
@@ -40,8 +40,8 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
         highFreqMax = 0;
 
         //CONECTIONS:
-        //power mic amp module with 3.3v and connect to A0
-        // SAMPLING the sound. it takes samples/frequency = 64/8000 = 8ms
+        //power mic amp module with 5v and connect to inputPin
+        // get samples of the sound. the time it takes is samples/frequency = 64/8000 = 8ms
         microseconds = micros();
         for (int i = 0; i < samples; i++)
         {
@@ -114,4 +114,3 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
         [43]5375.000000Hz 162.9220
         */
     }
-
