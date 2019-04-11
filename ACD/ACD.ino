@@ -1,9 +1,4 @@
 /*
-TODO:
-replace with commercial hbridge, and add pwm speed conrol to make horizontal motor drive slowly
-get replacement servo
-add smarter sound detection code
-
 
 pin connections:
 horizontal motor: D5 and D6
@@ -13,7 +8,7 @@ mic: A0
 IR LED: D13
 */
 
-#define IR_LED_PIN 4
+#define IR_LED_PIN 2
 #define COLLECTION_SERVO_PIN 9
 #define H_MOTOR_A 5
 #define H_MOTOR_B 6
@@ -26,10 +21,8 @@ IR LED: D13
 
 #include "motor.h"
 #include "mic.h"
-//#include <VarSpeedServo.h>
 #include <Servo.h>
 
-//VarSpeedServo myservo;    // create servo object to control a servo 
 Servo collectionServo;
 
 motor horizontalMotor(H_MOTOR_A, H_MOTOR_B);
@@ -45,18 +38,10 @@ void setup() {
 
     pinMode(BOTTOM_BUTTON_PIN, INPUT);
     pinMode(TOP_BUTTON_PIN, INPUT);
-    pinMode(IR_LED_PIN, INPUT);
+    pinMode(IR_LED_PIN, OUTPUT);
 
     Serial.println("Start up");
-    /*
-    for (int i = 0; i < 3; i++) {
-        digitalWrite(IR_LED_PIN, HIGH);
-        delay(500);
-        digitalWrite(IR_LED_PIN, LOW);
-        delay(500);
-    }
-    */
-
+    
     setupMic();
     collectionServo.attach(COLLECTION_SERVO_PIN);  // attaches the servo on pin COLLECTION_SERVO_PIN
     closeCollection();
@@ -76,10 +61,6 @@ void loop() {
         firstMovement = 0;
 
     }
-    Serial.print("gotEgg = ");
-    Serial.println(gotEgg);
-    Serial.print("state: ");
-    Serial.println(state);
         // open collection 
     if (gotEgg == 0) {
         openCollection();
@@ -116,7 +97,6 @@ void loop() {
 
     digitalWrite(IR_LED_PIN, LOW);
     state = (state == FORWARD ? BACKWARD : FORWARD);
-
 
 }
 

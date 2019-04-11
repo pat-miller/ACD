@@ -40,7 +40,7 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
         highFreqMax = 0;
 
         //CONECTIONS:
-        //power mic amp module with 3.3v and connect to A0
+        //power mic amp module with 5v and connect to A0
         // SAMPLING the sound. it takes samples/frequency = 64/8000 = 8ms
         microseconds = micros();
         for (int i = 0; i < samples; i++)

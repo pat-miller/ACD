@@ -1,5 +1,4 @@
 #include "motor.h"
-#include "config.h"
 
 motor::motor(int pinA, int pinB) {
     motorPinA = pinA;
