@@ -9,6 +9,7 @@ IR LED: D13
 */
 
 #define IR_LED_PIN 2
+#define STATUS_LED A2
 #define COLLECTION_SERVO_PIN 9
 #define H_MOTOR_A 5
 #define H_MOTOR_B 6
@@ -29,8 +30,12 @@ motor horizontalMotor(H_MOTOR_A, H_MOTOR_B);
 motor verticaMotor(V_MOTOR_A, V_MOTOR_B);
 
 int state = FORWARD;
-int gotEgg = 0;
-int firstMovement = 1;
+bool gotEgg = false;              // store whether the system is carrying an egg
+bool firstMovement = true;
+int toneDetetected = -1;  //store which tone range was last detected
+
+unsigned long previousMillis = 0;
+int ledState = LOW;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -39,9 +44,12 @@ void setup() {
     pinMode(BOTTOM_BUTTON_PIN, INPUT);
     pinMode(TOP_BUTTON_PIN, INPUT);
     pinMode(IR_LED_PIN, OUTPUT);
+    pinMode(STATUS_LED, OUTPUT);
 
-    Serial.println("Start up");
-    
+    //Serial.println("Start up");
+    startFlashPattern();    
+    digitalWrite(STATUS_LED, LOW); //off
+
     setupMic();
     collectionServo.attach(COLLECTION_SERVO_PIN);  // attaches the servo on pin COLLECTION_SERVO_PIN
     closeCollection();
@@ -49,7 +57,43 @@ void setup() {
     resetVerticalSystem();
     digitalWrite(IR_LED_PIN, HIGH);
     Serial.println("LEDs on");
+}
+
+void startFlashPattern(void) {
+    for (int i = 0; i < 4; i++) {
+        digitalWrite(STATUS_LED, HIGH); //on
+        delay(150);
+        digitalWrite(STATUS_LED, LOW); //off
+        delay(150);
     }
+}
+
+void flash() {
+    unsigned long currentMillis = millis();
+    const long interval = 800;
+    if (toneState == 0) { // low frequency, solid
+        digitalWrite(STATUS_LED, HIGH); //on
+    }
+    else if (toneState == 1) { //high frequency
+        if (currentMillis - previousMillis >= interval) {
+            // save the last time you blinked the LED
+            previousMillis = currentMillis;
+
+            // if the LED is off turn it on and vice-versa:
+            if (ledState == LOW) {
+                ledState = HIGH;
+            }
+            else {
+                ledState = LOW;
+            }
+            // set the LED with the ledState of the variable:
+            digitalWrite(STATUS_LED, ledState);
+        }
+    }
+    else {
+        digitalWrite(STATUS_LED, LOW); //otherwise, off
+    }
+}
 
 // the loop function runs over and over again until power down or reset
 void loop() {
@@ -83,9 +127,6 @@ void loop() {
 
     resetVerticalSystem();
 
-    if (gotEgg == 0) {
-        closeCollection();
-    }
 
     // Turn on led
     digitalWrite(IR_LED_PIN, HIGH);
@@ -131,10 +172,34 @@ void resetVerticalSystem() {
     }
     delay(100);
     verticaMotor.stop();
-    Serial.println("vertical system is all reset and ready");
-    delay(500);
+
+    // close the blades
+    if (gotEgg == 0) {
+        closeCollection();
+    }
 }
 
+void horizontalMove(int direction) {
+    int doloop = 1;
+    while (doloop == 1) {
+        horizontalMotor.drive(direction, HORIZONTAL_SPEED);
+        while(toneDetetected == -1){
+            toneDetetected = checkForSound();
+            flash();
+        }
+        for (int i = 0; i < 20; i++){
+            toneDetetected = checkForSound();
+            flash();
+        }
+        if (toneDetetected != -1){
+            doloop = 0;
+        }
+    }
+    horizontalMotor.stop();
+}
+
+
+/*
 void horizontalMove(int direction) {
 
     int previousTrigger = 0;
@@ -173,3 +238,4 @@ void horizontalMove(int direction) {
     }
     horizontalMotor.stop();
 }
+*/
